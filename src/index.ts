@@ -9,9 +9,7 @@ export * from './authentication/UnsecureWebIdExtractor';
 
 // Authorization
 export * from './authorization/AllowEverythingAuthorizer';
-export * from './authorization/AclManager';
 export * from './authorization/Authorizer';
-export * from './authorization/UrlBasedAclManager';
 export * from './authorization/WebAclAuthorizer';
 
 // Init
@@ -21,6 +19,12 @@ export * from './init/Initializer';
 export * from './init/LoggerInitializer';
 export * from './init/RootContainerInitializer';
 export * from './init/ServerInitializer';
+
+// LDP/Authorization
+export * from './ldp/auxiliary/AuxiliaryManager';
+export * from './ldp/auxiliary/CompositeAuxiliaryManager';
+export * from './ldp/auxiliary/SuffixAuxiliaryManager';
+export * from './ldp/auxiliary/UrlBasedAclManager';
 
 // LDP/HTTP/Metadata
 export * from './ldp/http/metadata/AclLinkMetadataWriter';
