@@ -36,6 +36,7 @@ describe('A SparqlPatchPermissionsExtractor', (): void => {
       read: false,
       append: true,
       write: false,
+      control: false,
     });
   });
 
@@ -50,6 +51,7 @@ describe('A SparqlPatchPermissionsExtractor', (): void => {
       read: false,
       append: true,
       write: true,
+      control: false,
     });
   });
 
@@ -64,6 +66,7 @@ describe('A SparqlPatchPermissionsExtractor', (): void => {
       read: false,
       append: true,
       write: false,
+      control: false,
     });
   });
 
@@ -81,6 +84,7 @@ describe('A SparqlPatchPermissionsExtractor', (): void => {
       read: false,
       append: true,
       write: true,
+      control: false,
     });
   });
 });

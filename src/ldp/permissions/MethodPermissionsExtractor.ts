@@ -21,6 +21,7 @@ export class MethodPermissionsExtractor extends PermissionsExtractor {
   public async handle({ method }: Operation): Promise<PermissionSet> {
     const read = READ_METHODS.has(method);
     const write = WRITE_METHODS.has(method);
-    return { read, write, append: write };
+    const control = false;
+    return { read, write, append: write, control };
   }
 }
