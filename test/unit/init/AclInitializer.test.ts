@@ -1,6 +1,6 @@
 import fs from 'fs';
-import type { AclManager } from '../../../src/authorization/AclManager';
 import { AclInitializer } from '../../../src/init/AclInitializer';
+import type { AuxiliaryManager } from '../../../src/ldp/auxiliary/AuxiliaryManager';
 import { BasicRepresentation } from '../../../src/ldp/representation/BasicRepresentation';
 import type { ResourceStore } from '../../../src/storage/ResourceStore';
 import { NotFoundHttpError } from '../../../src/util/errors/NotFoundHttpError';
@@ -19,8 +19,8 @@ describe('AclInitializer', (): void => {
     setRepresentation: jest.fn(),
   } as any;
   const aclIdentifier = { path: 'http://test.com/.acl' };
-  const aclManager: jest.Mocked<AclManager> = {
-    getAclDocument: jest.fn().mockResolvedValue(aclIdentifier),
+  const aclManager: jest.Mocked<AuxiliaryManager> = {
+    getAuxiliaryIdentifier: jest.fn().mockReturnValue(aclIdentifier),
   } as any;
   const baseUrl = 'http://localhost:3000/';
 
@@ -32,7 +32,7 @@ describe('AclInitializer', (): void => {
     const initializer = new AclInitializer({ baseUrl, store, aclManager });
     await initializer.handle();
 
-    expect(aclManager.getAclDocument).toHaveBeenCalledWith({ path: baseUrl });
+    expect(aclManager.getAuxiliaryIdentifier).toHaveBeenCalledWith({ path: baseUrl });
     expect(store.getRepresentation).toHaveBeenCalledTimes(1);
     expect(store.getRepresentation).toHaveBeenCalledWith(aclIdentifier, {});
     expect(store.setRepresentation).toHaveBeenCalledTimes(1);
@@ -48,7 +48,7 @@ describe('AclInitializer', (): void => {
     const initializer = new AclInitializer({ baseUrl, store, aclManager, aclPath: '/path/doc.acl' });
     await initializer.handle();
 
-    expect(aclManager.getAclDocument).toHaveBeenCalledWith({ path: baseUrl });
+    expect(aclManager.getAuxiliaryIdentifier).toHaveBeenCalledWith({ path: baseUrl });
     expect(store.getRepresentation).toHaveBeenCalledTimes(1);
     expect(store.getRepresentation).toHaveBeenCalledWith(aclIdentifier, {});
     expect(store.setRepresentation).toHaveBeenCalledTimes(1);
@@ -68,7 +68,7 @@ describe('AclInitializer', (): void => {
     const initializer = new AclInitializer({ baseUrl, store, aclManager });
     await initializer.handle();
 
-    expect(aclManager.getAclDocument).toHaveBeenCalledWith({ path: baseUrl });
+    expect(aclManager.getAuxiliaryIdentifier).toHaveBeenCalledWith({ path: baseUrl });
     expect(store.getRepresentation).toHaveBeenCalledTimes(1);
     expect(store.getRepresentation).toHaveBeenCalledWith(aclIdentifier, {});
     expect(store.setRepresentation).toHaveBeenCalledTimes(0);

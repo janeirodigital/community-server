@@ -1,5 +1,5 @@
 import { createReadStream } from 'fs';
-import type { AclManager } from '../authorization/AclManager';
+import type { AuxiliaryManager } from '../ldp/auxiliary/AuxiliaryManager';
 import { BasicRepresentation } from '../ldp/representation/BasicRepresentation';
 import type { ResourceIdentifier } from '../ldp/representation/ResourceIdentifier';
 import { getLoggerFor } from '../logging/LogUtil';
@@ -17,13 +17,13 @@ const DEFAULT_ACL_PATH = joinFilePath(__dirname, '../../templates/root/.acl');
 export class AclInitializer extends Initializer {
   protected readonly logger = getLoggerFor(this);
   private readonly store: ResourceStore;
-  private readonly aclManager: AclManager;
+  private readonly aclManager: AuxiliaryManager;
   private readonly root: ResourceIdentifier;
   private readonly aclPath: string;
 
   public constructor(settings: {
     store: ResourceStore;
-    aclManager: AclManager;
+    aclManager: AuxiliaryManager;
     baseUrl: string;
     aclPath?: string;
   }) {
@@ -38,7 +38,7 @@ export class AclInitializer extends Initializer {
   // The associated ACL document MUST include an authorization policy with acl:Control access privilege."
   // https://solid.github.io/specification/protocol#storage
   public async handle(): Promise<void> {
-    const rootAcl = await this.aclManager.getAclDocument(this.root);
+    const rootAcl = this.aclManager.getAuxiliaryIdentifier(this.root);
     if (await containsResource(this.store, rootAcl)) {
       this.logger.debug(`Existing root ACL document found at ${rootAcl.path}`);
     } else {

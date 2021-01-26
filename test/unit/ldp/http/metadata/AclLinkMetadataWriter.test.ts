@@ -1,13 +1,13 @@
 import { createResponse } from 'node-mocks-http';
-import type { AclManager } from '../../../../../src/authorization/AclManager';
+import type { AuxiliaryManager } from '../../../../../src/ldp/auxiliary/AuxiliaryManager';
 import { AclLinkMetadataWriter } from '../../../../../src/ldp/http/metadata/AclLinkMetadataWriter';
 import { RepresentationMetadata } from '../../../../../src/ldp/representation/RepresentationMetadata';
 import type { ResourceIdentifier } from '../../../../../src/ldp/representation/ResourceIdentifier';
 
 describe('An AclLinkMetadataWriter', (): void => {
   const manager = {
-    getAclDocument: async(id: ResourceIdentifier): Promise<ResourceIdentifier> => ({ path: `${id.path}.acl` }),
-  } as AclManager;
+    getAuxiliaryIdentifier: (id: ResourceIdentifier): ResourceIdentifier => ({ path: `${id.path}.acl` }),
+  } as AuxiliaryManager;
   const identifier = { path: 'http://test.com/foo' };
 
   it('adds the acl link header.', async(): Promise<void> => {

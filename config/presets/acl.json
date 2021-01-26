@@ -3,7 +3,10 @@
   "@graph": [
     {
       "@id": "urn:solid-server:default:AclManager",
-      "@type": "UrlBasedAclManager"
+      "@type": "UrlBasedAclManager",
+      "UrlBasedAclManager:_converter": {
+        "@id": "urn:solid-server:default:RepresentationConverter"
+      }
     },
 
     {
@@ -27,7 +30,7 @@
     },
 
     {
-      "@id": "urn:solid-server:default:AclAuthorizer",
+      "@id": "urn:solid-server:default:WebAclAuthorizer",
       "@type": "WebAclAuthorizer",
       "WebAclAuthorizer:_aclManager": {
         "@id": "urn:solid-server:default:AclManager"
