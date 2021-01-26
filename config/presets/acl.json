@@ -3,10 +3,33 @@
   "@graph": [
     {
       "@id": "urn:solid-server:default:AclManager",
-      "@type": "UrlBasedAclManager"
+      "@type": "UrlBasedAclManager",
+      "UrlBasedAclManager:_converter": {
+        "@id": "urn:solid-server:default:RdfToQuadConverter"
+      }
     },
+
     {
       "@id": "urn:solid-server:default:AclAuthorizer",
+      "@type": "WaterfallHandler",
+      "WaterfallHandler:_handlers": [
+        {
+          "@type": "AuxiliaryAuthorizer",
+          "AuxiliaryAuthorizer:_authorizer": {
+            "@id": "urn:solid-server:default:WebAclAuthorizer"
+          },
+          "AuxiliaryAuthorizer:_manager": {
+            "@id": "urn:solid-server:default:AclManager"
+          }
+        },
+        {
+          "@id": "urn:solid-server:default:WebAclAuthorizer"
+        }
+      ]
+    },
+
+    {
+      "@id": "urn:solid-server:default:WebAclAuthorizer",
       "@type": "WebAclAuthorizer",
       "WebAclAuthorizer:_aclManager": {
         "@id": "urn:solid-server:default:AclManager"

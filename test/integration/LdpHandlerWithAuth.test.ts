@@ -61,8 +61,7 @@ describe.each(stores)('An LDP handler with auth using %s', (name, { storeUrn, se
     await teardown();
   });
 
-  it('can add a file to the store, read it and delete it if allowed.', async():
-  Promise<void> => {
+  it('can add a file to the store, read it and delete it if allowed.', async(): Promise<void> => {
     // Set acl
     await aclHelper.setSimpleAcl({ read: true, write: true, append: true, control: false }, 'agent');
 
@@ -84,8 +83,7 @@ describe.each(stores)('An LDP handler with auth using %s', (name, { storeUrn, se
     await resourceHelper.shouldNotExist(id);
   });
 
-  it('can not add a file to the store if not allowed.', async():
-  Promise<void> => {
+  it('can not add a file to the store if not allowed.', async(): Promise<void> => {
     // Set acl
     await aclHelper.setSimpleAcl({ read: true, write: true, append: true, control: false }, 'authenticated');
 
@@ -96,8 +94,7 @@ describe.each(stores)('An LDP handler with auth using %s', (name, { storeUrn, se
     expect(response.statusCode).toBe(401);
   });
 
-  it('can not add/delete, but only read files if allowed.', async():
-  Promise<void> => {
+  it('can not add/delete, but only read files if allowed.', async(): Promise<void> => {
     // Set acl
     await aclHelper.setSimpleAcl({ read: true, write: false, append: false, control: false }, 'agent');
 
@@ -116,5 +113,21 @@ describe.each(stores)('An LDP handler with auth using %s', (name, { storeUrn, se
     // Try to delete permanent file
     response = await resourceHelper.deleteResource('http://test.com/permanent.txt', true);
     expect(response.statusCode).toBe(401);
+  });
+
+  it('can not access an acl file if no control rights are provided.', async(): Promise<void> => {
+    // Set acl
+    await aclHelper.setSimpleAcl({ read: true, write: true, append: true, control: false }, 'agent');
+
+    const response = await resourceHelper.performRequest(new URL('http://test.com/.acl'), 'GET', { accept: '*/*' });
+    expect(response.statusCode).toBe(401);
+  });
+
+  it('can only access an acl file if control rights are provided.', async(): Promise<void> => {
+    // Set acl
+    await aclHelper.setSimpleAcl({ read: false, write: false, append: false, control: true }, 'agent');
+
+    const response = await resourceHelper.performRequest(new URL('http://test.com/.acl'), 'GET', { accept: '*/*' });
+    expect(response.statusCode).toBe(200);
   });
 });

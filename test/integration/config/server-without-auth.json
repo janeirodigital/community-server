@@ -50,6 +50,9 @@
     {
       "@id": "urn:solid-server:default:AclManager",
       "@type": "UrlBasedAclManager",
+      "UrlBasedAclManager:_converter": {
+        "@id": "urn:solid-server:default:RdfToQuadConverter"
+      },
       "comment": "Needed for AclLinkMetadataWriter"
     }
   ]
