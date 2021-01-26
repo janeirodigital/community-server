@@ -22,14 +22,16 @@
 
     {
       "@id": "urn:solid-server:default:ResourceStore_Locking",
-      "@type": "LockingResourceStore",
-      "LockingResourceStore:_source": {
+      "@type": "AuxiliaryLockingStore",
+      "AuxiliaryLockingStore:_source": {
         "@id": "urn:solid-server:default:ResourceStore_Patching"
       },
-      "LockingResourceStore:_locks": {
+      "AuxiliaryLockingStore:_locks": {
         "@id": "urn:solid-server:default:ResourceLocker"
+      },
+      "AuxiliaryLockingStore:_manager": {
+        "@id": "urn:solid-server:default:AclManager"
       }
-
     },
 
     {

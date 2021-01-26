@@ -167,6 +167,7 @@ export * from './storage/routing/RouterRule';
 
 // Storage
 export * from './storage/AtomicResourceStore';
+export * from './storage/AuxiliaryLockingStore';
 export * from './storage/BaseResourceStore';
 export * from './storage/Conditions';
 export * from './storage/DataAccessorBasedStore';
