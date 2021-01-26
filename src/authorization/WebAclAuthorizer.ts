@@ -1,6 +1,7 @@
 import type { Quad, Term } from 'n3';
 import { Store } from 'n3';
 import type { Credentials } from '../authentication/Credentials';
+import type { AuxiliaryManager } from '../ldp/auxiliary/AuxiliaryManager';
 import type { PermissionSet } from '../ldp/permissions/PermissionSet';
 import type { Representation } from '../ldp/representation/Representation';
 import type { ResourceIdentifier } from '../ldp/representation/ResourceIdentifier';
@@ -9,10 +10,10 @@ import type { ResourceStore } from '../storage/ResourceStore';
 import { INTERNAL_QUADS } from '../util/ContentTypes';
 import { ForbiddenHttpError } from '../util/errors/ForbiddenHttpError';
 import { NotFoundHttpError } from '../util/errors/NotFoundHttpError';
+import { NotImplementedHttpError } from '../util/errors/NotImplementedHttpError';
 import { UnauthorizedHttpError } from '../util/errors/UnauthorizedHttpError';
 import type { IdentifierStrategy } from '../util/identifiers/IdentifierStrategy';
 import { ACL, FOAF } from '../util/Vocabularies';
-import type { AclManager } from './AclManager';
 import type { AuthorizerArgs } from './Authorizer';
 import { Authorizer } from './Authorizer';
 
@@ -24,15 +25,22 @@ import { Authorizer } from './Authorizer';
 export class WebAclAuthorizer extends Authorizer {
   protected readonly logger = getLoggerFor(this);
 
-  private readonly aclManager: AclManager;
+  private readonly aclManager: AuxiliaryManager;
   private readonly resourceStore: ResourceStore;
   private readonly identifierStrategy: IdentifierStrategy;
 
-  public constructor(aclManager: AclManager, resourceStore: ResourceStore, identifierStrategy: IdentifierStrategy) {
+  public constructor(aclManager: AuxiliaryManager, resourceStore: ResourceStore,
+    identifierStrategy: IdentifierStrategy) {
     super();
     this.aclManager = aclManager;
     this.resourceStore = resourceStore;
     this.identifierStrategy = identifierStrategy;
+  }
+
+  public async canHandle({ identifier }: AuthorizerArgs): Promise<void> {
+    if (this.aclManager.isAuxiliaryIdentifier(identifier)) {
+      throw new NotImplementedHttpError('WebAclAuthorizer does not support permissions on acl files.');
+    }
   }
 
   /**
@@ -44,9 +52,7 @@ export class WebAclAuthorizer extends Authorizer {
     // Solid, §4.3.3: "To discover, read, create, or modify an ACL auxiliary resource, an acl:agent MUST
     // have acl:Control privileges per the ACL inheritance algorithm on the resource directly associated with it."
     // https://solid.github.io/specification/protocol#auxiliary-resources-reserved
-    const modes = await this.aclManager.isAclDocument(identifier) ?
-      [ 'control' ] :
-      (Object.keys(permissions) as (keyof PermissionSet)[]).filter((key): boolean => permissions[key]);
+    const modes = (Object.keys(permissions) as (keyof PermissionSet)[]).filter((key): boolean => permissions[key]);
 
     // Verify that all required modes are set for the given agent
     this.logger.debug(`Checking if ${credentials.webId} has ${modes.join()} permissions for ${identifier.path}`);
@@ -132,7 +138,7 @@ export class WebAclAuthorizer extends Authorizer {
   /**
    * Returns the acl triples that are relevant for the given identifier.
    * These can either be from a corresponding acl file or an acl file higher up with defaults.
-   * Rethrows any non-NotFoundHttpErrors thrown by the AclManager or ResourceStore.
+   * Rethrows any non-NotFoundHttpErrors thrown by the aclManager or ResourceStore.
    * @param id - ResourceIdentifier of which we need the acl triples.
    * @param recurse - Only used internally for recursion.
    *
@@ -141,13 +147,12 @@ export class WebAclAuthorizer extends Authorizer {
   private async getAclRecursive(id: ResourceIdentifier, recurse?: boolean): Promise<Store> {
     this.logger.debug(`Trying to read the direct ACL document of ${id.path}`);
     try {
-      const acl = await this.aclManager.getAclDocument(id);
+      const acl = this.aclManager.getAuxiliaryIdentifier(id);
       this.logger.debug(`Trying to read the ACL document ${acl.path}`);
       const data = await this.resourceStore.getRepresentation(acl, { type: { [INTERNAL_QUADS]: 1 }});
       this.logger.info(`Reading ACL statements from ${acl.path}`);
 
-      const resourceId = await this.aclManager.getAclConstrainedResource(id);
-      return this.filterData(data, recurse ? ACL.default : ACL.accessTo, resourceId.path);
+      return this.filterData(data, recurse ? ACL.default : ACL.accessTo, id.path);
     } catch (error: unknown) {
       if (NotFoundHttpError.isInstance(error)) {
         this.logger.debug(`No direct ACL document found for ${id.path}`);
