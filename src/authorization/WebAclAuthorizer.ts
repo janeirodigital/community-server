@@ -11,6 +11,7 @@ import { ForbiddenHttpError } from '../util/errors/ForbiddenHttpError';
 import { NotFoundHttpError } from '../util/errors/NotFoundHttpError';
 import { UnauthorizedHttpError } from '../util/errors/UnauthorizedHttpError';
 import type { IdentifierStrategy } from '../util/identifiers/IdentifierStrategy';
+import { toCanonicalUriPath } from '../util/PathUtil';
 import { ACL, FOAF } from '../util/Vocabularies';
 import type { AclManager } from './AclManager';
 import type { AuthorizerArgs } from './Authorizer';
@@ -189,7 +190,14 @@ export class WebAclAuthorizer extends Authorizer {
       importEmitter.on('error', reject);
     });
 
-    const auths = store.getQuads(null, predicate, object, null).map((quad: Quad): Term => quad.subject);
+    // .acl files might not use the same normalization we do internally which could cause invalid results
+    // We solve this by manually filtering over the results and normalizing the objects
+    const quads = store.getQuads(null, predicate, null, null);
+    const objectPath = new URL(object).pathname;
+    const auths = quads.filter((quad): boolean => quad.object.termType === 'NamedNode' &&
+      toCanonicalUriPath(new URL(quad.object.value).pathname) === objectPath)
+      .map((quad): Term => quad.subject);
+
     const newStore = new Store();
     auths.forEach((subject): any => newStore.addQuads(store.getQuads(subject, null, null, null)));
     return newStore;
