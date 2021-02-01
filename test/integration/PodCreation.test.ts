@@ -10,7 +10,7 @@ const baseUrl = `http://localhost:${port}/`;
 
 describe('A server with a pod handler', (): void => {
   let server: Server;
-  const agent = { login: 'alice', webId: 'http://test.com/#alice', name: 'Alice Bob' };
+  const agent = { login: 'alice', webId: 'http://test.com/#alice', name: 'Alice Bob', issuer: 'https://issuer.example' };
 
   beforeAll(async(): Promise<void> => {
     const factory = await instantiateFromConfig(

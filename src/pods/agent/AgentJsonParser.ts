@@ -6,7 +6,7 @@ import type { Agent } from './Agent';
 import { AgentParser } from './AgentParser';
 import Dict = NodeJS.Dict;
 
-const requiredKeys: (keyof Agent)[] = [ 'login', 'webId' ];
+const requiredKeys: (keyof Agent)[] = [ 'login', 'webId', 'issuer' ];
 const optionalKeys: (keyof Agent)[] = [ 'name', 'email' ];
 const agentKeys: Set<keyof Agent> = new Set(requiredKeys.concat(optionalKeys));
 

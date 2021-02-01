@@ -51,12 +51,14 @@ describe('An AgentJsonParser', (): void => {
       login: 'login',
       webId: 'webId',
       name: 'name',
+      issuer: 'issuer',
     }) ]);
     await expect(parser.handle(representation)).resolves
       .toEqual({
         login: 'login',
         webId: 'webId',
         name: 'name',
+        issuer: 'issuer',
       });
   });
 });

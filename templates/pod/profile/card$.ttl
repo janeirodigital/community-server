@@ -1,4 +1,6 @@
 @prefix foaf: <http://xmlns.com/foaf/0.1/>.
+@prefix interop: <http://www.w3.org/ns/solid/interop#> .
+@prefix solid: <http://www.w3.org/ns/solid/terms#> .
 
 <>
     a foaf:PersonalProfileDocument;
@@ -6,5 +8,13 @@
     foaf:primaryTopic <{{webId}}>.
 
 <{{webId}}>
-    a foaf:Person;
-    foaf:name "{{name}}".
+    a foaf:Person ;
+    a ldp:RDFSource ;
+    foaf:name "{{name}}" ;
+    a interop:Agent ;
+    solid:oidcIssuer <{{issuer}}> ;
+    interop:hasApplicationRegistrySet <./profile/application#set> ;
+    interop:hasDataRegistrySet <./profile/data#set> ;
+    interop:hasAccessGrantRegistrySet <./profile/grant#set> ;
+    interop:hasAccessReceiptRegistrySet <./profile/receipt#set> ;
+    interop:hasRemoteDataRegistrySet <./profile/remote#set> .
