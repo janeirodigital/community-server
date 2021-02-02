@@ -28,7 +28,6 @@ export * from './ldp/auxiliary/SuffixAuxiliaryManager';
 export * from './ldp/auxiliary/UrlBasedAclManager';
 
 // LDP/HTTP/Metadata
-export * from './ldp/http/metadata/AclLinkMetadataWriter';
 export * from './ldp/http/metadata/BasicMetadataExtractor';
 export * from './ldp/http/metadata/ConstantMetadataWriter';
 export * from './ldp/http/metadata/ContentTypeParser';
