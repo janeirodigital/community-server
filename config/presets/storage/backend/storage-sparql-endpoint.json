@@ -20,6 +20,14 @@
       },
       "DataAccessorBasedStore:_identifierStrategy": {
         "@id": "urn:solid-server:default:IdentifierStrategy"
+      },
+      "DataAccessorBasedStore:_auxiliaryManager": {
+        "@type": "CompositeAuxiliaryManager",
+        "CompositeAuxiliaryManager:_sources": [
+          {
+            "@id": "urn:solid-server:default:AclManager"
+          }
+        ]
       }
     },
 
