@@ -24,6 +24,7 @@ describe('A GeneratedPodManager', (): void => {
       login: 'user',
       name: 'first last',
       webId: 'http://secure/webId',
+      issuer: 'https://issuer.example/',
     };
     store = {
       getRepresentation: jest.fn((): any => {
