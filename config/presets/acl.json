@@ -8,6 +8,13 @@
         "@id": "urn:solid-server:default:RepresentationConverter"
       }
     },
+    {
+      "@id": "urn:solid-server:default:ShapeTreeAuxiliaryManager",
+      "@type": "ShapeTreeAuxiliaryManager",
+      "ShapeTreeAuxiliaryManager:_converter": {
+        "@id": "urn:solid-server:default:RepresentationConverter"
+      }
+    },
 
     {
       "@id": "urn:solid-server:default:AclBasedAuthorizer",

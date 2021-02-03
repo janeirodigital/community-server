@@ -108,6 +108,10 @@ export const RDF = createUriAndTermNamespace('http://www.w3.org/1999/02/22-rdf-s
   'type',
 );
 
+export const SHAPETREE = createUriAndTermNamespace('http://shapetrees.org/#',
+  'ShapeTree',
+);
+
 export const VANN = createUriAndTermNamespace('http://purl.org/vocab/vann/',
   'preferredNamespacePrefix',
 );

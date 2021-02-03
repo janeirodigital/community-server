@@ -25,6 +25,7 @@ export * from './init/ServerInitializer';
 export * from './ldp/auxiliary/AuxiliaryManager';
 export * from './ldp/auxiliary/CompositeAuxiliaryManager';
 export * from './ldp/auxiliary/SuffixAuxiliaryManager';
+export * from './ldp/auxiliary/ShapeTreeAuxiliaryManager';
 export * from './ldp/auxiliary/UrlBasedAclManager';
 
 // LDP/HTTP/Metadata

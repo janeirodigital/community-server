@@ -34,6 +34,9 @@
         "CompositeAuxiliaryManager:_sources": [
           {
             "@id": "urn:solid-server:default:AclManager"
+          },
+          {
+            "@id": "urn:solid-server:default:ShapeTreeAuxiliaryManager"
           }
         ]
       }
