@@ -18,8 +18,8 @@ import type { ResourceStore } from './ResourceStore';
 export class LockingResourceStore implements AtomicResourceStore {
   protected readonly logger = getLoggerFor(this);
 
-  private readonly source: ResourceStore;
-  private readonly locks: ExpiringResourceLocker;
+  protected readonly source: ResourceStore;
+  protected readonly locks: ExpiringResourceLocker;
 
   public constructor(source: ResourceStore, locks: ExpiringResourceLocker) {
     this.source = source;

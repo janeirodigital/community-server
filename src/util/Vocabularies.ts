@@ -56,6 +56,7 @@ Namespace<typeof localNames, string> & { terms: Namespace<typeof localNames, Nam
 }
 
 export const ACL = createUriAndTermNamespace('http://www.w3.org/ns/auth/acl#',
+  'accessControl',
   'accessTo',
   'agent',
   'agentClass',

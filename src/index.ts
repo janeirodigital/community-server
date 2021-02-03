@@ -9,9 +9,8 @@ export * from './authentication/UnsecureWebIdExtractor';
 
 // Authorization
 export * from './authorization/AllowEverythingAuthorizer';
-export * from './authorization/AclManager';
 export * from './authorization/Authorizer';
-export * from './authorization/UrlBasedAclManager';
+export * from './authorization/AuxiliaryAuthorizer';
 export * from './authorization/WebAclAuthorizer';
 
 // Init
@@ -22,8 +21,13 @@ export * from './init/LoggerInitializer';
 export * from './init/RootContainerInitializer';
 export * from './init/ServerInitializer';
 
+// LDP/Authorization
+export * from './ldp/auxiliary/AuxiliaryManager';
+export * from './ldp/auxiliary/CompositeAuxiliaryManager';
+export * from './ldp/auxiliary/SuffixAuxiliaryManager';
+export * from './ldp/auxiliary/UrlBasedAclManager';
+
 // LDP/HTTP/Metadata
-export * from './ldp/http/metadata/AclLinkMetadataWriter';
 export * from './ldp/http/metadata/BasicMetadataExtractor';
 export * from './ldp/http/metadata/ConstantMetadataWriter';
 export * from './ldp/http/metadata/ContentTypeParser';
@@ -68,6 +72,7 @@ export * from './ldp/operations/PostOperationHandler';
 export * from './ldp/operations/PutOperationHandler';
 
 // LDP/Permissions
+export * from './ldp/permissions/AclPermissionsExtractor';
 export * from './ldp/permissions/PermissionSet';
 export * from './ldp/permissions/PermissionsExtractor';
 export * from './ldp/permissions/MethodPermissionsExtractor';
@@ -162,6 +167,7 @@ export * from './storage/routing/RouterRule';
 
 // Storage
 export * from './storage/AtomicResourceStore';
+export * from './storage/AuxiliaryLockingStore';
 export * from './storage/BaseResourceStore';
 export * from './storage/Conditions';
 export * from './storage/DataAccessorBasedStore';

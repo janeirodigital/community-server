@@ -1,4 +1,5 @@
 import { RootContainerInitializer } from '../../src/init/RootContainerInitializer';
+import { CompositeAuxiliaryManager } from '../../src/ldp/auxiliary/CompositeAuxiliaryManager';
 import { BasicRepresentation } from '../../src/ldp/representation/BasicRepresentation';
 import type { Representation } from '../../src/ldp/representation/Representation';
 import { InMemoryDataAccessor } from '../../src/storage/accessors/InMemoryDataAccessor';
@@ -30,7 +31,11 @@ describe('A LockingResourceStore', (): void => {
 
     const base = 'http://test.com/';
     path = `${base}path`;
-    source = new DataAccessorBasedStore(new InMemoryDataAccessor(base), new SingleRootIdentifierStrategy(base));
+    source = new DataAccessorBasedStore(
+      new InMemoryDataAccessor(base),
+      new SingleRootIdentifierStrategy(base),
+      new CompositeAuxiliaryManager([]),
+    );
 
     // Initialize store
     const initializer = new RootContainerInitializer({ store: source, baseUrl: BASE });

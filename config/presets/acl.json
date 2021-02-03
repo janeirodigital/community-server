@@ -3,10 +3,34 @@
   "@graph": [
     {
       "@id": "urn:solid-server:default:AclManager",
-      "@type": "UrlBasedAclManager"
+      "@type": "UrlBasedAclManager",
+      "UrlBasedAclManager:_converter": {
+        "@id": "urn:solid-server:default:RepresentationConverter"
+      }
     },
+
     {
-      "@id": "urn:solid-server:default:AclAuthorizer",
+      "@id": "urn:solid-server:default:AclBasedAuthorizer",
+      "@type": "WaterfallHandler",
+      "WaterfallHandler:_handlers": [
+        {
+          "comment": "Auxiliary resources get converted by AuxiliaryAuthorizer and sent to WebAclAuthorizer. Other resources get rejected and get handled directly by WebAclAuthorizer.",
+          "@type": "AuxiliaryAuthorizer",
+          "AuxiliaryAuthorizer:_resourceAuthorizer": {
+            "@id": "urn:solid-server:default:WebAclAuthorizer"
+          },
+          "AuxiliaryAuthorizer:_manager": {
+            "@id": "urn:solid-server:default:AclManager"
+          }
+        },
+        {
+          "@id": "urn:solid-server:default:WebAclAuthorizer"
+        }
+      ]
+    },
+
+    {
+      "@id": "urn:solid-server:default:WebAclAuthorizer",
       "@type": "WebAclAuthorizer",
       "WebAclAuthorizer:_aclManager": {
         "@id": "urn:solid-server:default:AclManager"
