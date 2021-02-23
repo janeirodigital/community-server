@@ -1,4 +1,5 @@
 import { RootContainerInitializer } from '../../src/init/RootContainerInitializer';
+import { RoutingAuxiliaryStrategy } from '../../src/ldp/auxiliary/RoutingAuxiliaryStrategy';
 import { BasicRepresentation } from '../../src/ldp/representation/BasicRepresentation';
 import type { Representation } from '../../src/ldp/representation/Representation';
 import { InMemoryDataAccessor } from '../../src/storage/accessors/InMemoryDataAccessor';
@@ -8,10 +9,11 @@ import type { ResourceStore } from '../../src/storage/ResourceStore';
 import { APPLICATION_OCTET_STREAM } from '../../src/util/ContentTypes';
 import { InternalServerError } from '../../src/util/errors/InternalServerError';
 import { SingleRootIdentifierStrategy } from '../../src/util/identifiers/SingleRootIdentifierStrategy';
-import type { ExpiringResourceLocker } from '../../src/util/locking/ExpiringResourceLocker';
-import type { ResourceLocker } from '../../src/util/locking/ResourceLocker';
+import { EqualReadWriteLocker } from '../../src/util/locking/EqualReadWriteLocker';
+import type { ExpiringReadWriteLocker } from '../../src/util/locking/ExpiringReadWriteLocker';
+import type { ReadWriteLocker } from '../../src/util/locking/ReadWriteLocker';
 import { SingleThreadedResourceLocker } from '../../src/util/locking/SingleThreadedResourceLocker';
-import { WrappedExpiringResourceLocker } from '../../src/util/locking/WrappedExpiringResourceLocker';
+import { WrappedExpiringReadWriteLocker } from '../../src/util/locking/WrappedExpiringReadWriteLocker';
 import { guardedStreamFrom } from '../../src/util/StreamUtil';
 import { BASE } from './Config';
 
@@ -20,26 +22,33 @@ jest.useFakeTimers();
 describe('A LockingResourceStore', (): void => {
   let path: string;
   let store: LockingResourceStore;
-  let locker: ResourceLocker;
-  let expiringLocker: ExpiringResourceLocker;
+  let locker: ReadWriteLocker;
+  let expiringLocker: ExpiringReadWriteLocker;
   let source: ResourceStore;
   let getRepresentationSpy: jest.SpyInstance;
 
   beforeEach(async(): Promise<void> => {
     jest.clearAllMocks();
 
+    // Not relevant for these tests
+    const strategy = new RoutingAuxiliaryStrategy([]);
+
     const base = 'http://test.com/';
     path = `${base}path`;
-    source = new DataAccessorBasedStore(new InMemoryDataAccessor(base), new SingleRootIdentifierStrategy(base));
+    source = new DataAccessorBasedStore(
+      new InMemoryDataAccessor(base),
+      new SingleRootIdentifierStrategy(base),
+      strategy,
+    );
 
     // Initialize store
     const initializer = new RootContainerInitializer({ store: source, baseUrl: BASE });
     await initializer.handleSafe();
 
-    locker = new SingleThreadedResourceLocker();
-    expiringLocker = new WrappedExpiringResourceLocker(locker, 1000);
+    locker = new EqualReadWriteLocker(new SingleThreadedResourceLocker());
+    expiringLocker = new WrappedExpiringReadWriteLocker(locker, 1000);
 
-    store = new LockingResourceStore(source, expiringLocker);
+    store = new LockingResourceStore(source, expiringLocker, strategy);
 
     // Spy on a real ResourceLocker and ResourceStore instance
     getRepresentationSpy = jest.spyOn(source, 'getRepresentation');

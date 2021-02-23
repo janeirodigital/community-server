@@ -9,9 +9,10 @@ export * from './authentication/UnsecureWebIdExtractor';
 
 // Authorization
 export * from './authorization/AllowEverythingAuthorizer';
-export * from './authorization/AclManager';
+export * from './authorization/Authorization';
 export * from './authorization/Authorizer';
-export * from './authorization/UrlBasedAclManager';
+export * from './authorization/AuxiliaryAuthorizer';
+export * from './authorization/WebAclAuthorization';
 export * from './authorization/WebAclAuthorizer';
 
 // Init
@@ -22,8 +23,19 @@ export * from './init/LoggerInitializer';
 export * from './init/RootContainerInitializer';
 export * from './init/ServerInitializer';
 
+// LDP/Authorization
+export * from './ldp/auxiliary/AuxiliaryIdentifierStrategy';
+export * from './ldp/auxiliary/AuxiliaryStrategy';
+export * from './ldp/auxiliary/ComposedAuxiliaryStrategy';
+export * from './ldp/auxiliary/LinkMetadataGenerator';
+export * from './ldp/auxiliary/MetadataGenerator';
+export * from './ldp/auxiliary/RdfValidator';
+export * from './ldp/auxiliary/RoutingAuxiliaryIdentifierStrategy';
+export * from './ldp/auxiliary/RoutingAuxiliaryStrategy';
+export * from './ldp/auxiliary/SuffixAuxiliaryIdentifierStrategy';
+export * from './ldp/auxiliary/Validator';
+
 // LDP/HTTP/Metadata
-export * from './ldp/http/metadata/AclLinkMetadataWriter';
 export * from './ldp/http/metadata/BasicMetadataExtractor';
 export * from './ldp/http/metadata/ConstantMetadataWriter';
 export * from './ldp/http/metadata/ContentTypeParser';
@@ -34,6 +46,7 @@ export * from './ldp/http/metadata/MetadataExtractor';
 export * from './ldp/http/metadata/MetadataParser';
 export * from './ldp/http/metadata/MetadataWriter';
 export * from './ldp/http/metadata/SlugParser';
+export * from './ldp/http/metadata/WacAllowMetadataWriter';
 
 // LDP/HTTP/Response
 export * from './ldp/http/response/CreatedResponseDescription';
@@ -68,6 +81,7 @@ export * from './ldp/operations/PostOperationHandler';
 export * from './ldp/operations/PutOperationHandler';
 
 // LDP/Permissions
+export * from './ldp/permissions/AclPermissionsExtractor';
 export * from './ldp/permissions/PermissionSet';
 export * from './ldp/permissions/PermissionsExtractor';
 export * from './ldp/permissions/MethodPermissionsExtractor';
@@ -113,7 +127,7 @@ export * from './pods/PodManager';
 export * from './pods/PodManagerHttpHandler';
 
 // Server
-export * from './server/ExpressHttpServerFactory';
+export * from './server/BaseHttpServerFactory';
 export * from './server/HttpHandler';
 export * from './server/HttpRequest';
 export * from './server/HttpResponse';
@@ -143,6 +157,12 @@ export * from './storage/conversion/QuadToRdfConverter';
 export * from './storage/conversion/RdfToQuadConverter';
 export * from './storage/conversion/RepresentationConverter';
 export * from './storage/conversion/TypedRepresentationConverter';
+
+// Storage/KeyValueStorage
+export * from './storage/keyvalue/JsonResourceStorage';
+export * from './storage/keyvalue/KeyValueStorage';
+export * from './storage/keyvalue/MemoryMapStorage';
+export * from './storage/keyvalue/ResourceIdentifierStorage';
 
 // Storage/Mapping
 export * from './storage/mapping/BaseFileIdentifierMapper';
@@ -199,10 +219,13 @@ export * from './util/identifiers/IdentifierStrategy';
 export * from './util/identifiers/SingleRootIdentifierStrategy';
 
 // Util/Locking
-export * from './util/locking/ExpiringResourceLocker';
+export * from './util/locking/ExpiringReadWriteLocker';
+export * from './util/locking/EqualReadWriteLocker';
+export * from './util/locking/GreedyReadWriteLocker';
+export * from './util/locking/ReadWriteLocker';
 export * from './util/locking/ResourceLocker';
 export * from './util/locking/SingleThreadedResourceLocker';
-export * from './util/locking/WrappedExpiringResourceLocker';
+export * from './util/locking/WrappedExpiringReadWriteLocker';
 
 // Util
 export * from './util/ContentTypes';

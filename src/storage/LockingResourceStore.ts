@@ -1,57 +1,76 @@
 import type { Readable } from 'stream';
+import { promisify } from 'util';
+import eos from 'end-of-stream';
+import type { AuxiliaryIdentifierStrategy } from '../ldp/auxiliary/AuxiliaryIdentifierStrategy';
 import type { Patch } from '../ldp/http/Patch';
 import { BasicRepresentation } from '../ldp/representation/BasicRepresentation';
 import type { Representation } from '../ldp/representation/Representation';
 import type { RepresentationPreferences } from '../ldp/representation/RepresentationPreferences';
 import type { ResourceIdentifier } from '../ldp/representation/ResourceIdentifier';
 import { getLoggerFor } from '../logging/LogUtil';
-import type { ExpiringResourceLocker } from '../util/locking/ExpiringResourceLocker';
+import type { ExpiringReadWriteLocker } from '../util/locking/ExpiringReadWriteLocker';
 import type { AtomicResourceStore } from './AtomicResourceStore';
 import type { Conditions } from './Conditions';
 import type { ResourceStore } from './ResourceStore';
+const endOfStream = promisify(eos);
 
 /**
  * Store that for every call acquires a lock before executing it on the requested resource,
  * and releases it afterwards.
  * In case the request returns a Representation the lock will only be released when the data stream is finished.
+ *
+ * For auxiliary resources the lock will be applied to the associated resource.
+ * The actual operation is still executed on the auxiliary resource.
  */
 export class LockingResourceStore implements AtomicResourceStore {
   protected readonly logger = getLoggerFor(this);
 
   private readonly source: ResourceStore;
-  private readonly locks: ExpiringResourceLocker;
+  private readonly locks: ExpiringReadWriteLocker;
+  private readonly strategy: AuxiliaryIdentifierStrategy;
 
-  public constructor(source: ResourceStore, locks: ExpiringResourceLocker) {
+  public constructor(source: ResourceStore, locks: ExpiringReadWriteLocker, strategy: AuxiliaryIdentifierStrategy) {
     this.source = source;
     this.locks = locks;
+    this.strategy = strategy;
   }
 
   public async getRepresentation(identifier: ResourceIdentifier, preferences: RepresentationPreferences,
     conditions?: Conditions): Promise<Representation> {
-    return this.lockedRepresentationRun(identifier,
+    return this.lockedRepresentationRun(this.getLockIdentifier(identifier),
       async(): Promise<Representation> => this.source.getRepresentation(identifier, preferences, conditions));
   }
 
   public async addResource(container: ResourceIdentifier, representation: Representation,
     conditions?: Conditions): Promise<ResourceIdentifier> {
-    return this.locks.withWriteLock(container,
+    return this.locks.withWriteLock(this.getLockIdentifier(container),
       async(): Promise<ResourceIdentifier> => this.source.addResource(container, representation, conditions));
   }
 
   public async setRepresentation(identifier: ResourceIdentifier, representation: Representation,
     conditions?: Conditions): Promise<void> {
-    return this.locks.withWriteLock(identifier,
+    return this.locks.withWriteLock(this.getLockIdentifier(identifier),
       async(): Promise<void> => this.source.setRepresentation(identifier, representation, conditions));
   }
 
   public async deleteResource(identifier: ResourceIdentifier, conditions?: Conditions): Promise<void> {
-    return this.locks.withWriteLock(identifier,
+    return this.locks.withWriteLock(this.getLockIdentifier(identifier),
       async(): Promise<void> => this.source.deleteResource(identifier, conditions));
   }
 
   public async modifyResource(identifier: ResourceIdentifier, patch: Patch, conditions?: Conditions): Promise<void> {
-    return this.locks.withWriteLock(identifier,
+    return this.locks.withWriteLock(this.getLockIdentifier(identifier),
       async(): Promise<void> => this.source.modifyResource(identifier, patch, conditions));
+  }
+
+  /**
+   * Acquires the correct identifier to lock this resource.
+   * For auxiliary resources this means the associated identifier.
+   */
+  protected getLockIdentifier(identifier: ResourceIdentifier): ResourceIdentifier {
+    return this.strategy.isAuxiliaryIdentifier(identifier) ?
+      this.strategy.getAssociatedIdentifier(identifier) :
+      identifier;
   }
 
   /**
@@ -121,11 +140,7 @@ export class LockingResourceStore implements AtomicResourceStore {
    */
   protected async waitForStreamToEnd(source: Readable): Promise<void> {
     try {
-      await new Promise((resolve, reject): void => {
-        source.on('error', reject);
-        source.on('end', resolve);
-        source.on('close', resolve);
-      });
+      await endOfStream(source);
     } catch {
       // Destroy the stream in case of errors
       if (!source.destroyed) {
