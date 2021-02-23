@@ -1,0 +1,54 @@
+{
+  "@context": "https://linkedsoftwaredependencies.org/bundles/npm/@solid/community-server/^0.0.0/components/context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:solid-server:default:ResourcesGenerator",
+      "@type": "TemplatedResourcesGenerator",
+      "TemplatedResourcesGenerator:_templateFolder": {
+        "@id": "urn:solid-server:default:variable:podTemplateFolder"
+      },
+      "TemplatedResourcesGenerator:_factory": {
+        "@type": "ExtensionBasedMapperFactory"
+      },
+      "TemplatedResourcesGenerator:_engine": {
+        "@type": "HandlebarsTemplateEngine"
+      }
+    },
+    {
+      "@id": "urn:solid-server:default:PodManager",
+      "@type": "PostgresGeneratedPodManager",
+      "PostgresGeneratedPodManager:_store": {
+        "@id": "urn:solid-server:default:ResourceStore"
+      },
+      "PostgresGeneratedPodManager:_idGenerator": {
+        "@type": "SuffixIdentifierGenerator",
+        "SuffixIdentifierGenerator:_base": {
+          "@id": "urn:solid-server:default:variable:baseUrl"
+        }
+      },
+      "PostgresGeneratedPodManager:_resourcesGenerator": {
+        "@id": "urn:solid-server:default:ResourcesGenerator"
+      },
+      "PostgresGeneratedPodManager:_database": {
+        "@id": "urn:solid-server:default:Database"
+      }
+    },
+    {
+      "@id": "urn:solid-server:default:PodManagerHandler",
+      "@type": "PodManagerHttpHandler",
+      "PodManagerHttpHandler:_args_requestPath": "/pods",
+      "PodManagerHttpHandler:_args_requestParser": {
+        "@id": "urn:solid-server:default:RequestParser"
+      },
+      "PodManagerHttpHandler:_args_agentParser": {
+        "@type": "AgentJsonParser"
+      },
+      "PodManagerHttpHandler:_args_manager": {
+        "@id": "urn:solid-server:default:PodManager"
+      },
+      "PodManagerHttpHandler:_args_responseWriter": {
+        "@id": "urn:solid-server:default:ResponseWriter"
+      }
+    }
+  ]
+}

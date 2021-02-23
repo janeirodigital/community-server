@@ -15,6 +15,9 @@ export * from './authorization/AuxiliaryAuthorizer';
 export * from './authorization/WebAclAuthorization';
 export * from './authorization/WebAclAuthorizer';
 
+// Database
+export * from './database/Database';
+
 // Init
 export * from './init/AclInitializer';
 export * from './init/CliRunner';
@@ -123,6 +126,7 @@ export * from './pods/generate/TemplatedResourcesGenerator';
 
 // Pods
 export * from './pods/GeneratedPodManager';
+export * from './pods/PostgresGeneratedPodManager';
 export * from './pods/PodManager';
 export * from './pods/PodManagerHttpHandler';
 
@@ -144,6 +148,7 @@ export * from './server/middleware/WebSocketAdvertiser';
 export * from './storage/accessors/DataAccessor';
 export * from './storage/accessors/FileDataAccessor';
 export * from './storage/accessors/InMemoryDataAccessor';
+export * from './storage/accessors/PostgresDataAccessor';
 export * from './storage/accessors/SparqlDataAccessor';
 
 // Storage/Conversion

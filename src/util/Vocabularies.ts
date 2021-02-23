@@ -93,6 +93,8 @@ export const LDP = createUriAndTermNamespace('http://www.w3.org/ns/ldp#',
   'BasicContainer',
   'Container',
   'Resource',
+  'RDFSource',
+  'NonRDFSource',
 );
 
 export const MA = createUriAndTermNamespace('http://www.w3.org/ns/ma-ont#',

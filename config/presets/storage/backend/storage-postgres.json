@@ -1,0 +1,40 @@
+{
+  "@context": "https://linkedsoftwaredependencies.org/bundles/npm/@solid/community-server/^0.0.0/components/context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:solid-server:default:FileIdentifierMapper",
+      "@type": "ExtensionBasedMapper",
+      "ExtensionBasedMapper:_base": {
+        "@id": "urn:solid-server:default:variable:baseUrl"
+      },
+      "ExtensionBasedMapper:_rootFilepath": {
+        "@id": "urn:solid-server:default:variable:rootFilePath"
+      },
+      "ExtensionBasedMapper:_overrideTypes_acl": "text/turtle",
+      "ExtensionBasedMapper:_overrideTypes_meta": "text/turtle"
+    },
+    {
+      "@id": "urn:solid-server:default:PostgresDataAccessor",
+      "@type": "PostgresDataAccessor",
+      "PostgresDataAccessor:_identifierStrategy": {
+        "@id": "urn:solid-server:default:IdentifierStrategy"
+      },
+      "PostgresDataAccessor:_database": {
+        "@id": "urn:solid-server:default:Database"
+      }
+    },
+    {
+      "@id": "urn:solid-server:default:PostgresResourceStore",
+      "@type": "DataAccessorBasedStore",
+      "DataAccessorBasedStore:_accessor": {
+        "@id": "urn:solid-server:default:PostgresDataAccessor"
+      },
+      "DataAccessorBasedStore:_identifierStrategy": {
+        "@id": "urn:solid-server:default:IdentifierStrategy"
+      },
+      "DataAccessorBasedStore:_auxiliaryStrategy": {
+        "@id": "urn:solid-server:default:AuxiliaryStrategy"
+      }
+    }
+  ]
+}
