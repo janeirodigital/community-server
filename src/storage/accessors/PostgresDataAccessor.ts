@@ -25,10 +25,13 @@ const logger = getLoggerFor('PostgresDataAccessor');
 export class PostgresDataAccessor implements DataAccessor {
   private readonly identifierStrategy: IdentifierStrategy;
   private readonly database: Database;
+  private readonly schema: string;
 
-  public constructor(identifierStrategy: IdentifierStrategy, database: Database) {
+  public constructor(identifierStrategy: IdentifierStrategy, database: Database, schema: string) {
     this.identifierStrategy = identifierStrategy;
     this.database = database;
+    this.schema = schema;
+
     this.database.connect();
   }
 
@@ -49,11 +52,11 @@ export class PostgresDataAccessor implements DataAccessor {
     }
 
     if (!auxIdentifier.isAuxiliary) {
-      await this.database.queryHelper(`DELETE FROM public.resource_${podId} WHERE id = $1`,
+      await this.database.queryHelper(`DELETE FROM ${this.schema}.resource_${podId} WHERE id = $1`,
         [ resourceId ]);
     } else {
-      await this.database.queryHelper(`DELETE FROM public.auxiliary_resource_${podId} WHERE resource_id = $1 AND 
-      relation = $2`, [ resourceId, auxIdentifier.auxiliaryRelation ]);
+      await this.database.queryHelper(`DELETE FROM ${this.schema}.auxiliary_resource_${podId} WHERE resource_id = 
+      $1 AND relation = $2`, [ resourceId, auxIdentifier.auxiliaryRelation ]);
     }
 
     return Promise.resolve();
@@ -124,15 +127,15 @@ export class PostgresDataAccessor implements DataAccessor {
 
     const parentResourceId = await this.getResourceIdByName(podId, auxIdentifier.parentResourcePath);
 
-    const quadString = await this.streamToString(serializeQuads(metadata.quads()));
+    const quadString = await PostgresDataAccessor.streamToString(serializeQuads(metadata.quads()));
     const quadStream = guardStream(Readable.from(quadString));
     if (resourceId === null) {
       // Create resource with container = true
       await this.createResource(podId, auxIdentifier.resourcePath, true, parentResourceId, quadStream, metadata);
     } else {
       // Update existing resource record
-      await this.database.queryHelper(`UPDATE public.resource_${podId} SET content = $1, updated_at = now() WHERE 
-      id = $2`, [ quadString, resourceId ]);
+      await this.database.queryHelper(`UPDATE ${this.schema}.resource_${podId} SET content = $1, updated_at = now()
+       WHERE id = $2`, [ quadString, resourceId ]);
     }
 
     return Promise.resolve();
@@ -156,8 +159,8 @@ export class PostgresDataAccessor implements DataAccessor {
         await this.createResource(podId, auxIdentifier.resourcePath, false, parentResourceId, data, metadata);
       } else {
         // Update existing resource record
-        await this.database.queryHelper(`UPDATE public.resource_${podId} SET content = $1, updated_at = now() WHERE
-         id = $2`, [ this.streamToString(data), resourceId ]);
+        await this.database.queryHelper(`UPDATE ${this.schema}.resource_${podId} SET content = $1, updated_at = 
+        now() WHERE id = $2`, [ PostgresDataAccessor.streamToString(data), resourceId ]);
       }
     }
 
@@ -181,7 +184,7 @@ export class PostgresDataAccessor implements DataAccessor {
   private async getPodIdFromResourceIdentifier(username: string): Promise<BigInt> {
     logger.debug(`Looking up Pod Id for username ${username}`);
 
-    const result = await this.database.queryHelper('SELECT id::int8 FROM public.pod WHERE username = $1;',
+    const result = await this.database.queryHelper(`SELECT id::int8 FROM ${this.schema}.pod WHERE username = $1;`,
       [ username ]);
 
     if (result.rowCount === 1) {
@@ -190,7 +193,7 @@ export class PostgresDataAccessor implements DataAccessor {
     throw new NotFoundHttpError();
   }
 
-  private async streamToString(stream: Readable): Promise<string> {
+  private static async streamToString(stream: Readable): Promise<string> {
     const chunks = [];
 
     for await (const chunk of stream) {
@@ -201,7 +204,7 @@ export class PostgresDataAccessor implements DataAccessor {
     return buffer.toString('utf-8');
   }
 
-  private async streamToBuffer(stream: Readable): Promise<Buffer> {
+  private static async streamToBuffer(stream: Readable): Promise<Buffer> {
     const chunks = [];
 
     for await (const chunk of stream) {
@@ -214,7 +217,7 @@ export class PostgresDataAccessor implements DataAccessor {
   private async getResourceByName(podId: BigInt, resourceName: string): Promise<Resource> {
     const existingResourceResult = await this.database.queryHelper(`SELECT id, name, container, nonrdf, 
     parent_resource_id as parentresourceid, content, content_type as contenttype, created_at as createdat,
-    updated_at as updatedat FROM public.resource_${podId} WHERE name = $1`, [ resourceName ]);
+    updated_at as updatedat FROM ${this.schema}.resource_${podId} WHERE name = $1`, [ resourceName ]);
 
     if (existingResourceResult.rowCount === 0) {
       throw new NotFoundHttpError();
@@ -234,7 +237,7 @@ export class PostgresDataAccessor implements DataAccessor {
 
     if (resource.nonRdf) {
       const binaryResult = await this.database.queryHelper(`SELECT binary_content as binarycontent FROM 
-      public.binary_resource_${podId} WHERE resource_id = $1`, [ resource.id ]);
+      ${this.schema}.binary_resource_${podId} WHERE resource_id = $1`, [ resource.id ]);
 
       if (binaryResult.rowCount === 0) {
         logger.warn(`Expected a binary resource to be present for resource id: ${resource.id}`);
@@ -253,7 +256,7 @@ export class PostgresDataAccessor implements DataAccessor {
   Promise<AuxiliaryResource> {
     const existingAuxResourceResult = await this.database.queryHelper(`SELECT id, resource_id as resourceid, 
     relation, content, content_type as contenttype, created_at as createdat, updated_at as updatedat FROM 
-    public.auxiliary_resource_${podId} WHERE resource_id = $1 AND relation = $2`, [ resourceId, linkRelation ]);
+    ${this.schema}.auxiliary_resource_${podId} WHERE resource_id = $1 AND relation = $2`, [ resourceId, linkRelation ]);
 
     if (existingAuxResourceResult.rowCount === 0) {
       throw new NotFoundHttpError();
@@ -271,8 +274,8 @@ export class PostgresDataAccessor implements DataAccessor {
   }
 
   private async getResourceIdByName(podId: BigInt, resourceName: string): Promise<BigInt|null> {
-    const existingResourceIdResult = await this.database.queryHelper(`SELECT id FROM public.resource_${podId} WHERE
-     name = $1;`, [ resourceName ]);
+    const existingResourceIdResult = await this.database.queryHelper(`SELECT id FROM 
+    ${this.schema}.resource_${podId} WHERE name = $1;`, [ resourceName ]);
     if (existingResourceIdResult.rowCount === 0) {
       return null;
     }
@@ -282,7 +285,7 @@ export class PostgresDataAccessor implements DataAccessor {
   private async getAuxiliaryResourceIdByResourceAndRelation(podId: BigInt, resourceId: BigInt, relation: string):
   Promise<BigInt|null> {
     const existingResourceIdResult = await this.database.queryHelper(`SELECT id FROM 
-    public.auxiliary_resource_${podId} WHERE resource_id = $1 AND relation = $2;`, [ resourceId, relation ]);
+    ${this.schema}.auxiliary_resource_${podId} WHERE resource_id = $1 AND relation = $2;`, [ resourceId, relation ]);
     if (existingResourceIdResult.rowCount === 0) {
       return null;
     }
@@ -301,14 +304,14 @@ export class PostgresDataAccessor implements DataAccessor {
     const isRdf = rdfContentTypes.includes(metadata.contentType);
 
     if (isRdf) {
-      stringContent = await this.streamToString(content as Readable);
-      await this.database.queryHelper(`INSERT INTO public.resource_${podId} (name, container, nonrdf,
+      stringContent = await PostgresDataAccessor.streamToString(content as Readable);
+      await this.database.queryHelper(`INSERT INTO ${this.schema}.resource_${podId} (name, container, nonrdf,
       parent_resource_id, content, content_type, created_at) VALUES ($1, $2, $3, $4, $5, $6, now())`,
       [ resourceName, isContainer, false, parentResourceId, stringContent, metadata.contentType ]);
     } else {
-      const buffer = await this.streamToBuffer(content as Readable);
+      const buffer = await PostgresDataAccessor.streamToBuffer(content as Readable);
       // Insert the resource record
-      await this.database.queryHelper(`INSERT INTO public.resource_${podId} (name, container, nonrdf,
+      await this.database.queryHelper(`INSERT INTO ${this.schema}.resource_${podId} (name, container, nonrdf,
       parent_resource_id, content, content_type, created_at) VALUES ($1, $2, $3, $4, $5, $6, now())`,
       [ resourceName, isContainer, true, parentResourceId, null, metadata.contentType ]);
 
@@ -316,36 +319,29 @@ export class PostgresDataAccessor implements DataAccessor {
       const resourceId = await this.getResourceIdByName(podId, resourceName);
 
       // Insert the binary record
-      await this.database.queryHelper(`INSERT INTO public.binary_resource_${podId} (resource_id, binary_content, 
-      content_type, content_length, created_at) VALUES ($1, $2, $3, $4, now())`,
+      await this.database.queryHelper(`INSERT INTO ${this.schema}.binary_resource_${podId} (resource_id, 
+      binary_content, content_type, content_length, created_at) VALUES ($1, $2, $3, $4, now())`,
       [ resourceId, buffer, metadata.contentType, 0 ]);
     }
-
-    // If (isNonRdf) {
-    //   const resourceId = await this.getResourceIdByName(podId, resourceName);
-    //
-    //   await db.queryHelper(`INSERT INTO public.binary_resource_${podId} (resource_id, binary_content, content_type,
-    //   content_length, created_at) VALUES ($1, $2, $3, $4, now());`, [ resourceId, content,   ]);
-    // }
   }
 
   private async createAuxResource(podId: BigInt, resourceId: BigInt, relation: string, content: Guarded<Readable>,
     metadata: RepresentationMetadata): Promise<void> {
-    const stringContent = await this.streamToString(content as Readable);
+    const stringContent = await PostgresDataAccessor.streamToString(content as Readable);
 
     if (metadata.contentType === undefined) {
       metadata.contentType = 'text/turtle';
     }
 
-    await this.database.queryHelper(`INSERT INTO public.auxiliary_resource_${podId} (resource_id, relation, 
+    await this.database.queryHelper(`INSERT INTO ${this.schema}.auxiliary_resource_${podId} (resource_id, relation, 
     content, content_type, created_at) VALUES ($1, $2, $3, $4, now())`,
     [ resourceId, relation, stringContent, metadata.contentType ]);
   }
 
   private async updateAuxResource(podId: BigInt, auxResourceId: BigInt, content: Guarded<Readable>): Promise<void> {
-    const stringContent = await this.streamToString(content as Readable);
-    await this.database.queryHelper(`UPDATE public.auxiliary_resource_${podId} SET content = $1, updated_at = now()
-    WHERE id = $2`, [ stringContent, auxResourceId ]);
+    const stringContent = await PostgresDataAccessor.streamToString(content as Readable);
+    await this.database.queryHelper(`UPDATE ${this.schema}.auxiliary_resource_${podId} SET content = $1, updated_at
+    = now() WHERE id = $2`, [ stringContent, auxResourceId ]);
   }
 
   /**
@@ -356,11 +352,10 @@ export class PostgresDataAccessor implements DataAccessor {
    * @param resource - the resource that the child elements are being retrieved for
    */
   private async getChildMetadataQuads(podId: BigInt, resource: Resource): Promise<Quad[]> {
-    const quads: Quad[] = [];
     const childURIs: string[] = [];
 
-    const childResourceResults = await this.database.queryHelper(`SELECT name FROM public.resource_${podId} WHERE 
-    parent_resource_id = $1`, [ resource.id ]);
+    const childResourceResults = await this.database.queryHelper(`SELECT name FROM ${this.schema}.resource_${podId}
+     WHERE parent_resource_id = $1`, [ resource.id ]);
 
     // For every child in the container we want to generate specific metadata
     for (const resultRow of childResourceResults.rows) {
@@ -368,10 +363,8 @@ export class PostgresDataAccessor implements DataAccessor {
     }
 
     // Generate containment metadata
-    const containsQuads = generateContainmentQuads(
+    return generateContainmentQuads(
       DataFactory.namedNode(resource.name), childURIs,
     );
-
-    return quads.concat(containsQuads);
   }
 }

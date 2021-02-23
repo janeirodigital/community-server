@@ -21,7 +21,8 @@
       },
       "PostgresDataAccessor:_database": {
         "@id": "urn:solid-server:default:Database"
-      }
+      },
+      "PostgresDataAccessor:_schema": "public"
     },
     {
       "@id": "urn:solid-server:default:PostgresResourceStore",
