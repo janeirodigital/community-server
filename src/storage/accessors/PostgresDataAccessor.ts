@@ -1,4 +1,6 @@
 import { Readable } from 'stream';
+import { DataFactory } from 'n3';
+import type { Quad } from 'rdf-js';
 import rdfParser from 'rdf-parse';
 import { AuxiliaryResource } from '../../database/AuxiliaryResource';
 import type { Database } from '../../database/Database';
@@ -15,6 +17,7 @@ import type { Guarded } from '../../util/GuardedStream';
 import { guardStream } from '../../util/GuardedStream';
 import type { IdentifierStrategy } from '../../util/identifiers/IdentifierStrategy';
 import { serializeQuads } from '../../util/QuadUtil';
+import { generateContainmentQuads } from '../../util/ResourceUtil';
 import { CONTENT_TYPE, LDP, RDF } from '../../util/Vocabularies';
 import type { DataAccessor } from './DataAccessor';
 const logger = getLoggerFor('PostgresDataAccessor');
@@ -101,6 +104,7 @@ export class PostgresDataAccessor implements DataAccessor {
         metadata.add(RDF.type, LDP.terms.Container);
         metadata.add(RDF.type, LDP.terms.BasicContainer);
         metadata.add(RDF.type, LDP.terms.RDFSource);
+        metadata.addQuads(await this.getChildMetadataQuads(podId, resource));
       } else if (resource.nonRdf) {
         metadata.add(RDF.type, LDP.terms.NonRDFSource);
       } else {
@@ -342,5 +346,32 @@ export class PostgresDataAccessor implements DataAccessor {
     const stringContent = await this.streamToString(content as Readable);
     await this.database.queryHelper(`UPDATE public.auxiliary_resource_${podId} SET content = $1, updated_at = now()
     WHERE id = $2`, [ stringContent, auxResourceId ]);
+  }
+
+  /**
+   * Generate all containment related triples for a container.
+   * These include the actual containment triples
+   *
+   * @param podId - The ID of Pod in question
+   * @param resource - the resource that the child elements are being retrieved for
+   */
+  private async getChildMetadataQuads(podId: BigInt, resource: Resource): Promise<Quad[]> {
+    const quads: Quad[] = [];
+    const childURIs: string[] = [];
+
+    const childResourceResults = await this.database.queryHelper(`SELECT name FROM public.resource_${podId} WHERE 
+    parent_resource_id = $1`, [ resource.id ]);
+
+    // For every child in the container we want to generate specific metadata
+    for (const resultRow of childResourceResults.rows) {
+      childURIs.push(resultRow.name);
+    }
+
+    // Generate containment metadata
+    const containsQuads = generateContainmentQuads(
+      DataFactory.namedNode(resource.name), childURIs,
+    );
+
+    return quads.concat(containsQuads);
   }
 }
