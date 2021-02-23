@@ -26,6 +26,9 @@
       "RoutingAuxiliaryStrategy:_sources": [
         {
           "@id": "urn:solid-server:default:AclStrategy"
+        },
+        {
+          "@id": "urn:solid-server:default:ShapetreeStrategy"
         }
       ]
     },

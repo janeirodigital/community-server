@@ -1,0 +1,28 @@
+{
+  "@context": "https://linkedsoftwaredependencies.org/bundles/npm/@solid/community-server/^0.0.0/components/context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:solid-server:default:ShapetreeIdentifierStrategy",
+      "@type": "SuffixAuxiliaryIdentifierStrategy",
+      "SuffixAuxiliaryIdentifierStrategy:_suffix": ".shapetree"
+    },
+    {
+      "@id": "urn:solid-server:default:ShapetreeStrategy",
+      "@type": "ComposedAuxiliaryStrategy",
+      "ComposedAuxiliaryStrategy:_identifierStrategy": {
+        "@id": "urn:solid-server:default:ShapetreeIdentifierStrategy"
+      },
+      "ComposedAuxiliaryStrategy:_metadataGenerator": {
+        "@type": "LinkMetadataGenerator",
+        "LinkMetadataGenerator:_link": "http://shapetrees.org/#ShapeTree",
+        "LinkMetadataGenerator:_identifierStrategy": {
+          "@id": "urn:solid-server:default:ShapetreeIdentifierStrategy"
+        }
+      },
+      "ComposedAuxiliaryStrategy:_validator": {
+        "@id": "urn:solid-server:default:RdfValidator"
+      },
+      "ComposedAuxiliaryStrategy:_isRootRequired": true
+    }
+  ]
+}
