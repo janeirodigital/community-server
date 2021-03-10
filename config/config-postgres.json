@@ -28,7 +28,7 @@
       "@type": "Database"
     },
     {
-      "comment": "Use a file based store as backend with no additional routing.",
+      "comment": "Use a postgres based store as backend with no additional routing.",
       "@id": "urn:solid-server:default:RoutingResourceStore",
       "@type": "PassthroughStore",
       "PassthroughStore:_source": {

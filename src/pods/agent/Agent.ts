@@ -10,5 +10,5 @@ export type Agent = {
   // TODO (@joshdcollins) [2022-01-01]:-- source of values for resource generation.  So although these are not
   // TODO (@joshdcollins) [2022-01-01]:-- fields that actually part of the Agent's domain, they are entered
   // TODO (@joshdcollins) [2022-01-01]:-- here to ensure they can be included in generation
-  issuer: string;
+  oidcIssuer: string;
 };

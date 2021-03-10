@@ -44,7 +44,7 @@
             },
             {
               "LinkRelMetadataWriter:_linkRelMap_key": "http://shapetrees.org/#ShapeTree",
-              "LinkRelMetadataWriter:_linkRelMap_value": "shapetree"
+              "LinkRelMetadataWriter:_linkRelMap_value": "http://shapetrees.org/#ShapeTree"
             }
           ]
         },

@@ -16,7 +16,7 @@ import { UnsupportedMediaTypeHttpError } from '../../util/errors/UnsupportedMedi
 import type { Guarded } from '../../util/GuardedStream';
 import { guardStream } from '../../util/GuardedStream';
 import type { IdentifierStrategy } from '../../util/identifiers/IdentifierStrategy';
-import { serializeQuads } from '../../util/QuadUtil';
+import { parseQuads, serializeQuads } from '../../util/QuadUtil';
 import { generateContainmentQuads } from '../../util/ResourceUtil';
 import { CONTENT_TYPE, LDP, RDF } from '../../util/Vocabularies';
 import type { DataAccessor } from './DataAccessor';
@@ -36,6 +36,7 @@ export class PostgresDataAccessor implements DataAccessor {
   }
 
   public async canHandle(representation: Representation): Promise<void> {
+    // To DO - not sure why this is called binary
     if (!representation.binary) {
       throw new UnsupportedMediaTypeHttpError('Only binary data is supported.');
     }
@@ -108,6 +109,9 @@ export class PostgresDataAccessor implements DataAccessor {
         metadata.add(RDF.type, LDP.terms.BasicContainer);
         metadata.add(RDF.type, LDP.terms.RDFSource);
         metadata.addQuads(await this.getChildMetadataQuads(podId, resource));
+        const bodyQuads = await parseQuads(guardStream(Readable.from(resource.content)),
+          { format: resource.contentType, baseIRI: identifier.path });
+        metadata.addQuads(bodyQuads);
       } else if (resource.nonRdf) {
         metadata.add(RDF.type, LDP.terms.NonRDFSource);
       } else {
@@ -127,15 +131,14 @@ export class PostgresDataAccessor implements DataAccessor {
 
     const parentResourceId = await this.getResourceIdByName(podId, auxIdentifier.parentResourcePath);
 
-    const quadString = await PostgresDataAccessor.streamToString(serializeQuads(metadata.quads()));
-    const quadStream = guardStream(Readable.from(quadString));
+    const readable = serializeQuads(metadata.quads());
     if (resourceId === null) {
       // Create resource with container = true
-      await this.createResource(podId, auxIdentifier.resourcePath, true, parentResourceId, quadStream, metadata);
+      await this.createResource(podId, auxIdentifier.resourcePath, true, parentResourceId, readable, metadata);
     } else {
       // Update existing resource record
       await this.database.queryHelper(`UPDATE ${this.schema}.resource_${podId} SET content = $1, updated_at = now()
-       WHERE id = $2`, [ quadString, resourceId ]);
+       WHERE id = $2`, [ await PostgresDataAccessor.streamToString(readable), resourceId ]);
     }
 
     return Promise.resolve();
@@ -245,6 +248,9 @@ export class PostgresDataAccessor implements DataAccessor {
         logger.warn(`Expected only one binary resource to be present for resource id: ${resource.id} 
         but found multiple`);
       }
+
+      // To DO - would be good to include unique on the binary_resource.resource_id field to avoid case where
+      // Multiple resources could come back
 
       resource.binaryContent = binaryResult.rows[0].binarycontent;
     }
