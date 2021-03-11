@@ -15,5 +15,10 @@ rm /community-server/templates/pod/.acl-template
 envsubst < /community-server/templates/pod/profile/.acl-template > /community-server/templates/pod/profile/.acl
 rm /community-server/templates/pod/profile/.acl-template
 
+# run the migration at the startup
+echo "Running DB Migrations"
+db-migrate up --config database/database.json -e prod --migrations-dir database/migrations --verbose
 
+# run CSS
+echo "Starting CSS"
 node /community-server/bin/server.js "$@"
