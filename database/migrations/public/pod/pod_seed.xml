@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="release-0.1" author="josh.collins">
+        <insert tableName="pod" schemaName="public">
+            <column name="web_identity_id" valueComputed="(SELECT id FROM public.web_identity WHERE identity_url = 'root')"/>
+            <column name="username">root</column>
+        </insert>
+    </changeSet>
+
+</databaseChangeLog>

@@ -11,7 +11,7 @@ WORKDIR /community-server
 RUN npm ci
 
 # This is installed such that envsubst can be used within bootstrap.sh
-RUN apt update && apt-get install gettext-base
+RUN apt update && apt-get install -y gettext-base default-jdk
 
 # Informs Docker that the container listens on the specified network port at runtime
 EXPOSE 3000

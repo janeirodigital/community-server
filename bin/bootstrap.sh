@@ -17,8 +17,8 @@ rm /community-server/templates/pod/profile/.acl-template
 
 # run the migration at the startup
 echo "Running DB Migrations"
-db-migrate up --config database/database.json -e prod --migrations-dir database/migrations --verbose
+/community-server/node_modules/liquibase/lib/liquibase-4.0.0/liquibase --url="jdbc:postgresql://$PGHOST:5432/$PGDATABASE" --username="$PGUSER" --password="$PGPASSWORD" --changeLogFile="/community-server/database/migrations/main.xml" --classpath="/community-server/node_modules/liquibase/lib/Drivers/postgresql-42.2.8.jar" --logLevel="DEBUG" update
 
 # run CSS
 echo "Starting CSS"
-node /community-server/bin/server.js "$@"
+node /community-server/bin/server.js $@

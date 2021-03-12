@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <include file="../public/web_identity/web_identity_schema.xml" relativeToChangelogFile="true"/>
+    <include file="../public/pod/pod_schema.xml" relativeToChangelogFile="true"/>
+
+    <include file="../public/web_identity/web_identity_constraints.xml" relativeToChangelogFile="true"/>
+    <include file="../public/pod/pod_constraints.xml" relativeToChangelogFile="true"/>
+
+    <include file="../public/web_identity/web_identity_seed.xml" relativeToChangelogFile="true"/>
+    <include file="../public/pod/pod_seed.xml" relativeToChangelogFile="true"/>
+
+    <include file="../public/sprocs/create_pod_tables/create_pod_tables.changelog.xml" relativeToChangelogFile="true"/>
+
+    <changeSet id="bootstrap-root-pod" dbms="postgresql" author="josh.collins">
+        <sql endDelimiter=";">SELECT create_pod_tables((SELECT id FROM pod WHERE username = 'root'));</sql>
+    </changeSet>
+
+</databaseChangeLog>

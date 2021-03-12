@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="release-0.1" author="josh.collins">
+        <addForeignKeyConstraint constraintName="fk_pod_webidentity"
+                                 baseTableSchemaName="public"
+                                 baseTableName="pod" baseColumnNames="web_identity_id"
+                                 referencedTableSchemaName="public"
+                                 referencedTableName="web_identity"
+                                 referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+
+        <addUniqueConstraint constraintName="u_pod_username"
+                             schemaName="public"
+                             tableName="pod"
+                             columnNames="username"/>
+    </changeSet>
+</databaseChangeLog>
