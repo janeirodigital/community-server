@@ -118,7 +118,7 @@ export const SHAPETREE = createUriAndTermNamespace('http://shapetrees.org/#',
   'ShapeTree',
 );
 
-export const VC = createUriAndTermNamespace('https://www.w3.org/TR/vc-data-model/',
+export const VC = createUriAndTermNamespace('https://www.w3.org/2018/credentials#VerifiableCredential',
   'Vc',
 );
 

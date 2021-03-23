@@ -14,7 +14,7 @@
       },
       "ComposedAuxiliaryStrategy:_metadataGenerator": {
         "@type": "LinkMetadataGenerator",
-        "LinkMetadataGenerator:_link": "https://www.w3.org/TR/vc-data-model/",
+        "LinkMetadataGenerator:_link": "https://www.w3.org/2018/credentials#VerifiableCredential",
         "LinkMetadataGenerator:_identifierStrategy": {
           "@id": "urn:solid-server:default:VcIdentifierStrategy"
         }
