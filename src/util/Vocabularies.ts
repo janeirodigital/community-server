@@ -118,6 +118,10 @@ export const SHAPETREE = createUriAndTermNamespace('http://shapetrees.org/#',
   'ShapeTree',
 );
 
+export const VC = createUriAndTermNamespace('https://www.w3.org/TR/vc-data-model/',
+  'Vc',
+);
+
 export const VANN = createUriAndTermNamespace('http://purl.org/vocab/vann/',
   'preferredNamespacePrefix',
 );

@@ -29,6 +29,9 @@
         },
         {
           "@id": "urn:solid-server:default:ShapetreeStrategy"
+        },
+        {
+          "@id": "urn:solid-server:default:VcStrategy"
         }
       ]
     },

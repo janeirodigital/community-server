@@ -14,7 +14,7 @@
 # unless specifically authorized in other .acl resources.
 <#owner>
     a acl:Authorization;
-    acl:agent <{{webId}}> ;
+    acl:agent <{{webId}}>, <http://localhost:8081/public/tenants/master/solid/applications/xform-health-clinical-pipeline/id#me>;
     # Optional owner email, to be used for account recovery:
     {{#if email}}acl:agent <mailto:{{{email}}}>;{{/if}}
     # Set the access to the root storage folder itself

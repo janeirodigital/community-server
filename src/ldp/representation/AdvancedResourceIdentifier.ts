@@ -16,7 +16,7 @@ export class AdvancedResourceIdentifier implements ResourceIdentifier {
   public isAuxiliary = false;
   public auxiliaryRelation: string;
   public readonly username: string;
-  private readonly knownSuffixes = [ '.acl', '.meta', '.shapetree' ];
+  private readonly knownSuffixes = [ '.acl', '.meta', '.shapetree', '.vc' ];
 
   public constructor(identifier: ResourceIdentifier) {
     this.path = identifier.path;

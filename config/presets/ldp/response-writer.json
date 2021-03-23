@@ -45,6 +45,10 @@
             {
               "LinkRelMetadataWriter:_linkRelMap_key": "http://shapetrees.org/#ShapeTree",
               "LinkRelMetadataWriter:_linkRelMap_value": "http://shapetrees.org/#ShapeTree"
+            },
+            {
+              "LinkRelMetadataWriter:_linkRelMap_key": "https://www.w3.org/TR/vc-data-model/",
+              "LinkRelMetadataWriter:_linkRelMap_value": "https://www.w3.org/TR/vc-data-model/"
             }
           ]
         },

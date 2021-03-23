@@ -3,7 +3,10 @@
 
 <#authorization>
     a               acl:Authorization;
-    acl:agentClass  foaf:Agent;
+    # This environment variable token is replaced by bootstrap.sh using envsubst
+    # This is done because currently there is no configuration/context passed in
+    # for use by AclInitializer (it just copies the file in templates/root/.acl)
+    acl:agent       <http://localhost:8081/public/tenants/master/solid/applications/xform-health-clinical-pipeline/id#me>;
     acl:mode        acl:Read;
     acl:mode        acl:Write;
     acl:mode        acl:Append;
