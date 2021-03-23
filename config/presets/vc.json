@@ -1,0 +1,28 @@
+{
+  "@context": "https://linkedsoftwaredependencies.org/bundles/npm/@solid/community-server/^0.0.0/components/context.jsonld",
+  "@graph": [
+    {
+      "@id": "urn:solid-server:default:VcIdentifierStrategy",
+      "@type": "SuffixAuxiliaryIdentifierStrategy",
+      "SuffixAuxiliaryIdentifierStrategy:_suffix": ".vc"
+    },
+    {
+      "@id": "urn:solid-server:default:VcStrategy",
+      "@type": "ComposedAuxiliaryStrategy",
+      "ComposedAuxiliaryStrategy:_identifierStrategy": {
+        "@id": "urn:solid-server:default:VcIdentifierStrategy"
+      },
+      "ComposedAuxiliaryStrategy:_metadataGenerator": {
+        "@type": "LinkMetadataGenerator",
+        "LinkMetadataGenerator:_link": "https://www.w3.org/2018/credentials#VerifiableCredential",
+        "LinkMetadataGenerator:_identifierStrategy": {
+          "@id": "urn:solid-server:default:VcIdentifierStrategy"
+        }
+      },
+      "ComposedAuxiliaryStrategy:_validator": {
+        "@id": "urn:solid-server:default:RdfValidator"
+      },
+      "ComposedAuxiliaryStrategy:_isRootRequired": true
+    }
+  ]
+}

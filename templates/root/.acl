@@ -3,7 +3,7 @@
 
 <#authorization>
     a               acl:Authorization;
-    acl:agentClass  foaf:Agent;
+    acl:agentClass  foaf:Agent; 
     acl:mode        acl:Read;
     acl:mode        acl:Write;
     acl:mode        acl:Append;
