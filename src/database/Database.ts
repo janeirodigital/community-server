@@ -1,6 +1,9 @@
 import type { QueryResult } from 'pg';
 import { Pool } from 'pg';
 import * as pgtypes from 'pg-types';
+import { getLoggerFor } from '../logging/LogUtil';
+
+const logger = getLoggerFor('PostgresDataAccessor');
 
 export class Database {
   private readonly pool = new Pool();
@@ -11,8 +14,7 @@ export class Database {
       // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
       this.pool.query(text, params, (err: Error, result: QueryResult) => {
         if (err) {
-          // eslint-disable-next-line no-console
-          console.log(`ERROR ${err.message}`);
+          logger.error(`Error executing query: ${err.message}`);
           reject(err);
         } else {
           resolve(result);
@@ -26,15 +28,12 @@ export class Database {
     // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
     this.pool.connect((err: Error) => {
       if (err) {
-        // eslint-disable-next-line no-console
-        console.log(`ERROR ${err.message}`);
+        logger.info(`Error connecting to db: ${err.message}`);
       } else {
-        // eslint-disable-next-line no-console
-        console.log('Connected to db');
+        logger.info('Connected to db');
         this.queryHelper(`SELECT 'Testing Connection';`, [])
           .catch((err2: Error): void => {
-            // eslint-disable-next-line no-console
-            console.log(`ERROR ON QUERY ${err2.message}`);
+            logger.debug(`ERROR ON QUERY ${err2.message}`);
           });
       }
     });

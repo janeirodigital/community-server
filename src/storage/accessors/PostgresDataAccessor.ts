@@ -1,5 +1,6 @@
 import { Readable } from 'stream';
 import { DataFactory } from 'n3';
+import type { QueryResult } from 'pg';
 import type { Quad } from 'rdf-js';
 import rdfParser from 'rdf-parse';
 import { AuxiliaryResource } from '../../database/AuxiliaryResource';
@@ -162,8 +163,18 @@ export class PostgresDataAccessor implements DataAccessor {
         await this.createResource(podId, auxIdentifier.resourcePath, false, parentResourceId, data, metadata);
       } else {
         // Update existing resource record
-        await this.database.queryHelper(`UPDATE ${this.schema}.resource_${podId} SET content = $1, updated_at = 
-        now() WHERE id = $2`, [ PostgresDataAccessor.streamToString(data), resourceId ]);
+        PostgresDataAccessor.streamToString(data)
+          .then(async(body: string): Promise<QueryResult> => {
+            logger.debug(`Got body request: ${body}`);
+            // eslint-disable-next-line max-len
+            return this.database.queryHelper(`UPDATE ${this.schema}.resource_${podId} SET content = $1, updated_at = now() WHERE id = $2`, [ body, resourceId ]);
+          })
+          .then((result: QueryResult): void => {
+            logger.debug(`Query modified ${result.rowCount} rows`);
+          })
+          .catch((err: unknown): void => {
+            logger.debug(`error while parsing body request: ${err}`);
+          });
       }
     }
 
